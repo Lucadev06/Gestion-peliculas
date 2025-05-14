@@ -13,6 +13,6 @@ def cargar_peliculas_csv(ruta_archivo):
     return peliculas
 
 # Ejemplo de uso
-pelis = cargar_peliculas_csv("C:/Users/aleja/Downloads/practicas Luca/Gestion-peliculas/peliculas.csv")
+pelis = cargar_peliculas_csv("peliculas.csv")
 for p in pelis:
     print(p)
