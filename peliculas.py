@@ -16,3 +16,16 @@ def cargar_peliculas_csv(ruta_archivo):
 pelis = cargar_peliculas_csv("peliculas.csv")
 for p in pelis:
     print(p)
+
+def agregar_pelicula_csv(ruta_archivo):
+    titulo = input("Ingresa el título de la película: ")
+    genero = input("Ingresa el género de la película: ")
+    duracion = input("Ingresa la duración de la película (en minutos): ")
+
+    with open(ruta_archivo, 'a', newline='', encoding='utf-8') as archivo:
+        escritor = csv.writer(archivo)
+        escritor.writerow([titulo, genero, duracion])
+    print("Película agregada exitosamente.")
+
+# Ejemplo de uso
+agregar_pelicula_csv("peliculas.csv")
