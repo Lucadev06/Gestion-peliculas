@@ -129,7 +129,6 @@ def ordenar_genero():
 
 # Funciones de informes
 def mostrar_informe_estadistico():
-    # Calcular estadísticas
     total_peliculas = len(peliculas)
     generos = {}
     duracion_total = 0
@@ -139,9 +138,7 @@ def mostrar_informe_estadistico():
     pelicula_corta = ""
     
     for peli in peliculas:
-        # Conteo por género
         generos[peli[1]] = generos.get(peli[1], 0) + 1
-        # Cálculos de duración
         duracion_total += peli[2]
         if peli[2] < duracion_min:
             duracion_min = peli[2]
@@ -150,13 +147,13 @@ def mostrar_informe_estadistico():
             duracion_max = peli[2]
             pelicula_larga = peli[0]
     
-    # Crear ventana de informe
+    #Ventana de informe
     informe_window = tk.Toplevel(ventana)
     informe_window.title("📊 Informe Estadístico")
     informe_window.geometry("600x500")
     informe_window.resizable(False, False)
     
-    # Frame con scrollbar
+    # Frame con scrollbar de informe
     frame_principal = tk.Frame(informe_window)
     frame_principal.pack(fill="both", expand=True, padx=10, pady=10)
     
