@@ -31,6 +31,7 @@ def actualizar_lista():
     listbox.delete(0, tk.END)
     for peli in peliculas:
         listbox.insert(tk.END, f"🎬 {peli[0]:30} 🎭 {peli[1]:15} ⏱️ {peli[2]} min")
+    actualizar_barra_estado()
 
 def limpiar_entradas():
     entry_titulo.delete(0, tk.END)
@@ -126,6 +127,93 @@ def ordenar_genero():
     guardar_peliculas_csv()
     actualizar_lista()
 
+# Funciones de informes
+def mostrar_informe_estadistico():
+    # Calcular estadísticas
+    total_peliculas = len(peliculas)
+    generos = {}
+    duracion_total = 0
+    duracion_min = float('inf')
+    duracion_max = 0
+    pelicula_larga = ""
+    pelicula_corta = ""
+    
+    for peli in peliculas:
+        # Conteo por género
+        generos[peli[1]] = generos.get(peli[1], 0) + 1
+        # Cálculos de duración
+        duracion_total += peli[2]
+        if peli[2] < duracion_min:
+            duracion_min = peli[2]
+            pelicula_corta = peli[0]
+        if peli[2] > duracion_max:
+            duracion_max = peli[2]
+            pelicula_larga = peli[0]
+    
+    # Crear ventana de informe
+    informe_window = tk.Toplevel(ventana)
+    informe_window.title("📊 Informe Estadístico")
+    informe_window.geometry("600x500")
+    informe_window.resizable(False, False)
+    
+    # Frame con scrollbar
+    frame_principal = tk.Frame(informe_window)
+    frame_principal.pack(fill="both", expand=True, padx=10, pady=10)
+    
+    canvas = tk.Canvas(frame_principal)
+    scrollbar = tk.Scrollbar(frame_principal, orient="vertical", command=canvas.yview)
+    scrollable_frame = tk.Frame(canvas)
+    
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(
+            scrollregion=canvas.bbox("all")
+        )
+    )
+    
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+    
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+    
+    # Estilos
+    estilo_titulo = {"font": ("Helvetica", 16, "bold"), "fg": "#333", "pady": 10}
+    estilo_subtitulo = {"font": ("Arial", 12, "bold"), "fg": "#444", "anchor": "w", "pady": 5}
+    estilo_texto = {"font": ("Arial", 11), "anchor": "w", "padx": 20}
+    
+    # Contenido del informe
+    tk.Label(scrollable_frame, text="📊 Informe Estadístico de Películas", **estilo_titulo).pack(fill="x")
+    
+    # Sección 1: Resumen general
+    tk.Label(scrollable_frame, text="📌 Resumen General", **estilo_subtitulo).pack(fill="x")
+    tk.Label(scrollable_frame, text=f"🎬 Total de películas: {total_peliculas}", **estilo_texto).pack(fill="x")
+    tk.Label(scrollable_frame, text=f"⏱️ Duración promedio: {duracion_total/total_peliculas:.1f} minutos", **estilo_texto).pack(fill="x")
+    tk.Label(scrollable_frame, text=f"🏆 Película más larga: {pelicula_larga} ({duracion_max} min)", **estilo_texto).pack(fill="x")
+    tk.Label(scrollable_frame, text=f"🐜 Película más corta: {pelicula_corta} ({duracion_min} min)", **estilo_texto).pack(fill="x")
+    
+    # Sección 2: Distribución por género
+    tk.Label(scrollable_frame, text="\n🎭 Distribución por Género", **estilo_subtitulo).pack(fill="x")
+    
+    for genero, cantidad in generos.items():
+        porcentaje = (cantidad / total_peliculas) * 100
+        tk.Label(scrollable_frame, 
+                text=f"• {genero:<15} {cantidad:>3} películas ({porcentaje:.1f}%)", 
+                **estilo_texto).pack(fill="x")
+    
+    # Sección 3: Listado completo
+    tk.Label(scrollable_frame, text="\n🎞️ Listado Completo", **estilo_subtitulo).pack(fill="x")
+    
+    for i, peli in enumerate(peliculas, 1):
+        tk.Label(scrollable_frame, 
+                text=f"{i:>2}. {peli[0]:<30} {peli[1]:<15} {peli[2]:>4} min", 
+                font=("Courier New", 10)).pack(fill="x")
+
+def actualizar_barra_estado():
+    total = len(peliculas)
+    generos = len({peli[1] for peli in peliculas})
+    barra_estado.config(text=f" Películas: {total} | Géneros: {generos} | Seleccione una película para editar/eliminar")
+
 # INTERFAZ
 ventana = tk.Tk()
 ventana.title("🎥 Gestor de Películas")
@@ -142,11 +230,15 @@ if os.path.exists(IMAGEN_FONDO):
 else:
     ventana.configure(bg="#f9f7f1")
 
+# Barra de estado
+barra_estado = tk.Label(ventana, text="", bd=1, relief=tk.SUNKEN, anchor=tk.W, bg="#f0f0f0", font=("Arial", 10))
+barra_estado.place(relx=0, rely=0.97, relwidth=1)
+
 # Contenedor principal
 contenedor = tk.Frame(ventana, bg="#ffffff", bd=4, relief="ridge")
 contenedor.place(relx=0.5, rely=0.04, anchor="n")
 
-tk.Label(contenedor, text="🎞️ Mis Películas 🎞️", font=("Helvetica", 24, "bold"), bg="#ffffff", fg="#333").pack(pady=12)
+tk.Label(contenedor, text="🎞️ Nuestras Películas 🎞️", font=("Helvetica", 24, "bold"), bg="#ffffff", fg="#333").pack(pady=12)
 
 # Formulario
 formulario = tk.Frame(ventana, bg="#ffffff")
@@ -176,8 +268,9 @@ btn_style = {"width": 18, "height": 2, "font": ("Arial", 11, "bold")}
 tk.Button(botones, text="➕ Agregar", command=agregar_pelicula, bg="#c8e6c9", **btn_style).grid(row=0, column=0, padx=10)
 tk.Button(botones, text="✏️ Editar", command=editar_pelicula, bg="#fff59d", **btn_style).grid(row=0, column=1, padx=10)
 tk.Button(botones, text="🗑️ Eliminar", command=eliminar_pelicula, bg="#ffcdd2", **btn_style).grid(row=0, column=2, padx=10)
+tk.Button(botones, text="📊 Informe", command=mostrar_informe_estadistico, bg="#d1c4e9", **btn_style).grid(row=0, column=3, padx=10)
 
-# Botones de ordenamiento (NUEVOS)
+# Botones de ordenamiento
 botones_orden = tk.Frame(ventana, bg="#ffffff")
 botones_orden.place(relx=0.5, rely=0.39, anchor="n")
 
@@ -186,7 +279,6 @@ btn_orden_style = {"width": 15, "height": 1, "font": ("Arial", 10, "bold")}
 tk.Button(botones_orden, text="Ordenar A-Z", command=ordenar_az, bg="#bbdefb", **btn_orden_style).grid(row=0, column=0, padx=5, pady=5)
 tk.Button(botones_orden, text="Por Duración", command=ordenar_duracion, bg="#bbdefb", **btn_orden_style).grid(row=0, column=1, padx=5, pady=5)
 tk.Button(botones_orden, text="Por Género", command=ordenar_genero, bg="#bbdefb", **btn_orden_style).grid(row=0, column=2, padx=5, pady=5)
-
 
 # Lista de películas
 listbox_frame = tk.Frame(ventana, bg="#ffffff", bd=3, relief="ridge")
