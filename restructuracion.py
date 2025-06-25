@@ -107,29 +107,29 @@ def eliminar_pelicula():
         actualizar_lista()
         limpiar_entradas()
 
-# Funciones de ordenamiento (NUEVAS)
+# Funciones de ordenamiento
 def ordenar_az():
     global peliculas
-    peliculas = sorted(peliculas, key=lambda x: x[0].lower())  # Ordena por título (A-Z)
+    peliculas = sorted(peliculas, key=lambda x: x[0].lower())
     guardar_peliculas_csv()
     actualizar_lista()
 
 def ordenar_duracion():
     global peliculas
-    peliculas.sort(key=lambda x: x[2])  # Ordena por duración (menor a mayor)
+    peliculas.sort(key=lambda x: x[2])
     guardar_peliculas_csv()
     actualizar_lista()
 
 def ordenar_genero():
     global peliculas
-    peliculas = sorted(peliculas, key=lambda x: (x[1].lower(), x[0].lower()))  # Ordena por género y luego título
+    peliculas = sorted(peliculas, key=lambda x: (x[1].lower(), x[0].lower()))
     guardar_peliculas_csv()
     actualizar_lista()
 
 # INTERFAZ
 ventana = tk.Tk()
 ventana.title("🎥 Gestor de Películas")
-ventana.geometry("900x800")  # Aumenté el tamaño para los nuevos botones
+ventana.geometry("900x800")
 ventana.resizable(False, False)
 
 # Imagen de fondo
